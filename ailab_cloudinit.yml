@@ -1,0 +1,30 @@
+#cloud-config
+
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
+
+write_files:
+  - content: |
+      #!/usr/bin/env bash
+      set -ex
+
+      NIX_VERSION=2.13.1
+      sh -x <(curl -L https://releases.nixos.org/nix/nix-${NIX_VERSION}/install) --no-daemon --yes
+      source ~/.nix-profile/etc/profile.d/nix.sh
+      nix-env -iA nixpkgs.fast-downward
+
+      mambaforge_installer="Mambaforge-$(uname)-$(uname -m).sh"
+      curl -L -o "/tmp/${mambaforge_installer}" "https://github.com/conda-forge/miniforge/releases/latest/download/${mambaforge_installer}"
+      sh "/tmp/${mambaforge_installer}" -b
+      ~/mambaforge/condabin/conda init
+      ~/mambaforge/condabin/mamba init
+      ~/mambaforge/condabin/conda config --set auto_activate_base false
+    path: /tmp/ailab_setup.sh
+    permissions: '0755'
+    owner: root
+    defer: true
+
+
+runcmd:
+  - "id -un 1000 && sudo -i -u `id -un 1000` /tmp/ailab_setup.sh"
