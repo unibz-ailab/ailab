@@ -55,3 +55,45 @@ Get-Content -Path $env:USERPROFILE\.ssh\id_ed25519.pub | multipass exec ailab --
 The file `id_ed25519.pub` might have a different name according to the algorithm used to generate the key (that's when the key was already there and not generated using the command above).
 
 To ensure that you have access to the remote VM via `ssh` you should get the network address of the VM (IPv4) using the command `multipass info ailab` and then verify that the command `ssh ubuntu@XX.XX.XX.XX ls -la` works without asking any password (use the IPv4 value instead of `XX.XX.XX.XX`).
+
+## Coding on the Virtual Machine
+
+### Agent Forwarding
+
+Enabling the [SSH Agent Forwarding](https://www.howtogeek.com/devops/what-is-ssh-agent-forwarding-and-how-do-you-use-it/) provides a way of accessing git repositories authenticated via SSH keys without the need of copying the private keys on the remote VM. To verify that the authentication is working: 
+
+1. Check that you can authenticate on `gitlab.inf.unibz.it` from your local computer:
+
+   ```bash
+   $ ssh -T git@gitlab.inf.unibz.it
+   Welcome to GitLab, @tessaris!
+   ```
+
+2. Make sure that the identity stored in the SSH agent:
+
+    ```bash
+    $ ssh-add -L
+    ssh-rsa ....
+    ```
+
+    if the output is empty you need to add the identity with `ssh-add`
+
+3. Connect to the VM (using the `-A` option) and verify that the authentication is working
+
+   ```bash
+   $ ssh -A ubuntu@192.168.64.10
+   ubuntu@ailab:~$ ssh -T git@gitlab.inf.unibz.it
+   Welcome to GitLab, @tessaris!
+   ```
+
+   without the `-A` option the server will ask for a password:
+
+   ```bash
+   $ ssh ubuntu@192.168.64.10
+   ubuntu@ailab:~$ ssh -T git@gitlab.inf.unibz.it
+   git@gitlab.inf.unibz.it's password: 
+   ```
+
+Once SSH agent forwarding is configured you can use `git` commands to access the `gitlab.inf.unibz.it` server.
+
+For more complex configurations see also the answer in [SSH Agent forwarding using different usernames and different keys - Super User](https://superuser.com/a/1141035).
