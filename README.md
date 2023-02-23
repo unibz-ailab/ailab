@@ -22,7 +22,23 @@ For the course you can use a pre-configured virtual server on [Azure Lab Service
 
 ### Using Azure Labs
 
-#TODO
+A virtual machine template with the required software is available for the course on [Azure Lab Services](https://labs.azure.com), to use the services you need to authenticate using the unibz account. Each student will receive an email with a link for registering to the *Artificial_Intelligence_Lab*. After the registration the VM will be available among the ones available to the account ([direct link](https://labs.azure.com/virtualmachines)).
+
+To use the VM, first it needs to be booted up using the slider on the left bottom corner:
+
+![Available VMs](assets/lab_vm_list.png)
+
+Once running the VM should be accessed using SSH, with the default username `student`. *Do not change the username on the VM*, otherwise the software might not work correctly. Information on the VM internet address and connection port are available by clicking on the small computer icon on the bottom right:
+
+![VM connect details](assets/lab_vm_connect.png)
+
+![VM SSH details](assets/lab_vm_ssh.png)
+
+Note that the VM is configured to use a non-standard SSH port, so the `-p` option must be used accordingly (in the screenshot example above is 5000, but it could be different). Bear that in mind if you're not using the command line to connect to the VM. From the Azure documentation is not clear whether the IP address and the port could change after a restart of the VM, so is safer to assume that they might change.
+
+The default password is `zist7oum3GRUH`, you can change it once connected using the [passwd](https://manpages.ubuntu.com/manpages/jammy/en/man1/passwd.1.html) command. However, the most convenient method is to configure SSH key based authentication. To do so you need to create a key pair on your laptop (using `ssh-keygen` command) and copy the public key on the VM (using the `ssh-copy-id` command), more details on [What is ssh-keygen & How to Use It to Generate a New SSH Key?](https://www.ssh.com/academy/ssh/keygen). Detailed instruction are available on [Visual Studio Code documentation](https://code.visualstudio.com/docs/remote/troubleshooting#_configuring-key-based-authentication). This would also simplify remote development using IDEs that support it; e.g. [Visual Studio Code](https://code.visualstudio.com/docs/remote/remote-overview) or [JetBrains](https://www.jetbrains.com/remote-development/).
+
+Beware that VM might reset to default state, and in that case your files will be lost! This will happen only on rare cases, but you must ensure that your work is securely pushed on the git remote repository every time you disconnect from the VM. BTW, the same applies to your laptop as well, since hardware might fail without warnings!
 
 ### Using Multipass
 
@@ -133,4 +149,6 @@ If the command succeeds you'll see several messages on the console ending with s
         http://127.0.0.1:8888/lab?token=cbb9147dbfcac22831926075b2a1fbc0c0e075d21cc8fa97
 ```
 
-You can use one of the two `http` URL to connect to Jupyter. Make sure that the port in the URL is the same as the one you used in the `-L` option of `ssh`, if they're different it means that the port number you requested was already in use (likely by a previous version of Jupyter) and the system used a new port which is not forwarded from your local computer. In this case you should connect to the remote machine and stop 
+You can use one of the two `http` URL to connect to Jupyter. Make sure that the port in the URL is the same as the one you used in the `-L` option of `ssh`, if they're different it means that the port number you requested was already in use (likely by a previous version of Jupyter) and the system used a new port which is not forwarded from your local computer. In this case you should connect to the remote server and stop the Jupyter server using that port or use a different port.
+
+Note that if you use [VScode remote development](https://code.visualstudio.com/docs/remote/remote-overview) ports on the remote server are automatically forwarded to your local computer (see [the documentation](https://code.visualstudio.com/docs/remote/ssh-tutorial#_port-forwarding) for more details).
