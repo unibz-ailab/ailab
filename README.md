@@ -49,7 +49,7 @@ The default memory and disk size is rather limited (1G and 4G), so you'll need t
 The [Cloud-init](https://cloud-init.io/) configuration file [ailab_cloudinit.yml](ailab_cloudinit.yml) can be used to launch a Multipass instance with the software already installed; e.g. the command:
 
 ``` bash
-multipass launch lts --memory 4G --disk 10G --cpus 2 --name ailab --cloud-init ailab_cloudinit.yml
+multipass launch 22.04 --memory 4G --disk 10G --cpus 2 --name ailab --cloud-init ailab_cloudinit.yml
 ```
 
 creates and starts a virtual machine (the *guest*) with 4GB of memory, 10GB of disk size, and 2 CPUs using the latest Ubuntu LTS operating system (currently 22.04); moreover, it uses the description from [ailab_cloudinit.yml](ailab_cloudinit.yml) to configure the above software.
