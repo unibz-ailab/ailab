@@ -11,12 +11,12 @@ write_files:
       set -ex
 
       ### Install nix and required packages
-      ###   see <https://nixos.org/download#nix-install-linux>
+      ###   see <https://github.com/DeterminateSystems/nix-installer>
       #
-      NIX_VERSION=2.18.1
-      sh -x <(curl -L https://releases.nixos.org/nix/nix-${NIX_VERSION}/install) --no-daemon --yes
-      source ~/.nix-profile/etc/profile.d/nix.sh
-      nix-env -iA nixpkgs.fast-downward
+      NIX_INST_VERSION="v0.15.1"
+      curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix/tag/${NIX_INST_VERSION} | sh -s -- install --no-confirm
+      source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+      nix profile install nixpkgs#fast-downward
 
       ### Install Miniforge
       ###   see <https://github.com/conda-forge/miniforge#downloading-the-installer-as-part-of-a-ci-pipeline>
@@ -26,16 +26,13 @@ write_files:
       miniforge_installer="Miniforge3-$(uname)-$(uname -m).sh"
       curl -L -o "/tmp/${miniforge_installer}" "https://github.com/conda-forge/miniforge/releases/download/${MINIFORGE_VERSION}/${miniforge_installer}"
       sh "/tmp/${miniforge_installer}" -b -p "${MINIFORGE_PATH}"
-      source "${MINIFORGE_PATH}/etc/profile.d/conda.sh"
-      source "${MINIFORGE_PATH}/etc/profile.d/mamba.sh"
-      conda init
-      mamba init
-      conda config --set auto_activate_base false
-    path: /tmp/ailab_setup.sh
+      "${MINIFORGE_PATH}/bin/mamba" init $(basename "${SHELL:-bash}")
+      "${MINIFORGE_PATH}/bin/conda" config --set auto_activate_base false
+    path: /run/ailab_setup.sh
     permissions: '0755'
     owner: root
     defer: true
 
 
 runcmd:
-  - "id -un 1000 && sudo -i -u `id -un 1000` /tmp/ailab_setup.sh"
+  - "id -un 1000 && sudo -i -u '#1000' bash /run/ailab_setup.sh"
