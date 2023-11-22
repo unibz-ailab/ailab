@@ -16,7 +16,10 @@ write_files:
       NIX_INST_VERSION="v0.15.1"
       curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix/tag/${NIX_INST_VERSION} | sh -s -- install --no-confirm
       source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-      nix profile install nixpkgs#fast-downward
+
+      ## Install default profile
+      AILAB_FLAKE="github:unibz-ailab/ailab#ailab"
+      nix profile install "${AILAB_FLAKE}"
 
       ### Install Miniforge
       ###   see <https://github.com/conda-forge/miniforge#downloading-the-installer-as-part-of-a-ci-pipeline>
