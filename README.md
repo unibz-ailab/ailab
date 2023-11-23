@@ -14,9 +14,9 @@ Several development IDEs support remote development via `ssh`; e.g., [Visual Stu
 The setup is based on a Linux machine configured with the following package managers:
 
 - [Miniforge](https://github.com/conda-forge/miniforge), an alternative to [Miniconda](https://docs.conda.io/en/latest/miniconda.html) including the more efficient [Mamba](https://mamba.readthedocs.io/en/latest/) engine.
-- [Nix package manager](https://nixos.wiki/wiki/Nix_package_manager), mainly used to simplify the installation of [Fast Downward](https://www.fast-downward.org/) planning system
+- [Nix package manager](https://zero-to-nix.com/).
 
-The script [ailab_setup.sh](ailab_setup.sh) installs the above software within a Linux distribution (the only software dependency is `curl`). It *must* be run as a regular user (not root) which must have `sudo` access for privileged operations (to verify whether the unprivileged user you're using can use `sudo` you can use the command `sudo ls /`). The script can be used to setup a Linux system of your choice (virtualised or not), e.g. with [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/about), [Apptainer](https://apptainer.org/), or Docker/Podman. Even if you're using a Linux machine as your main computer, it's better to isolate the setup for the lab using virtualisation with Multipass, Apptainer or Podman.
+The script [setup.sh](setup.sh) installs the above software within a Linux distribution (the only dependency is `curl`). It *must* be run as a regular user (not root) which must have `sudo` access for privileged operations (to verify whether the unprivileged user you're using can use `sudo` you can use the command `sudo ls /`). The script can be used to setup a Linux system of your choice (virtualised or not), e.g. with [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/about), [Apptainer](https://apptainer.org/), or Docker/Podman. Even if you're using a Linux machine as your main computer, it's better to isolate the setup for the lab using virtualisation with Multipass, Apptainer or Podman.
 
 For the course you can use a pre-configured virtual server on [Azure Lab Services](https://labs.azure.com/) or set-up a virtual server on your computer. For this last option we suggest to use [Ubuntu Multipass](https://multipass.run/). Below you'll find more details.
 
@@ -53,12 +53,6 @@ multipass launch 22.04 --memory 4G --disk 10G --cpus 2 --name ailab --cloud-init
 ```
 
 creates and starts a virtual machine (the *guest*) with 4GB of memory, 10GB of disk size, and 2 CPUs using the latest Ubuntu LTS operating system (currently 22.04); moreover, it uses the description from [ailab_cloudinit.yml](ailab_cloudinit.yml) to configure the above software.
-
-To extract the setup script from the cloud init configuration file use the `jq` script:
-
-```bash
-gojq -r --yaml-input '.write_files[]|select(.path|contains("ailab_setup"))|.content' <ailab_cloudinit.yml
-```
 
 To log in the running VM you can use the command `multipass shell ailab`. Look also at the documentation [How to share data with an instance](https://multipass.run/docs/share-data-with-an-instance#heading--using-mount) to share the host filesystem with the guest VM; in this way you can edit files locally and test your code within the virtual machine.
 

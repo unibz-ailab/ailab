@@ -5,37 +5,32 @@ package_update: false
 package_upgrade: false
 # package_reboot_if_required: true
 
+packages:
+  - curl
+  - git
+
 write_files:
   - content: |
-      #!/usr/bin/env bash
+      #!/usr/bin/env sh
       set -ex
 
-      ### Install nix and required packages
-      ###   see <https://github.com/DeterminateSystems/nix-installer>
-      #
-      NIX_INST_VERSION="v0.15.1"
-      curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix/tag/${NIX_INST_VERSION} | sh -s -- install --no-confirm
-      source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+      fatal() {
+        echo "$@" >&2; exit 1
+      }
 
-      ## Install default profile
-      AILAB_FLAKE="github:unibz-ailab/ailab#ailab"
-      nix profile install "${AILAB_FLAKE}"
+      DEFAULT_USER=1000
+      REVISION=main
+      SETUP_SCRIPT="https://github.com/unibz-ailab/ailab/raw/${REVISION}/setup.sh"
 
-      ### Install Miniforge
-      ###   see <https://github.com/conda-forge/miniforge#downloading-the-installer-as-part-of-a-ci-pipeline>
-      #
-      MINIFORGE_VERSION=23.3.1-1
-      MINIFORGE_PATH="${HOME}/conda"
-      miniforge_installer="Miniforge3-$(uname)-$(uname -m).sh"
-      curl -L -o "/tmp/${miniforge_installer}" "https://github.com/conda-forge/miniforge/releases/download/${MINIFORGE_VERSION}/${miniforge_installer}"
-      sh "/tmp/${miniforge_installer}" -b -p "${MINIFORGE_PATH}"
-      "${MINIFORGE_PATH}/bin/mamba" init $(basename "${SHELL:-bash}")
-      "${MINIFORGE_PATH}/bin/conda" config --set auto_activate_base false
+      if id -un "${DEFAULT_USER}"; then
+        ( { curl -sSLf "${SETUP_SCRIPT}" || echo "exit 1"; } | sudo -i -u "#${DEFAULT_USER}" sh -s ) || fatal "Failed to run setup script <${SETUP_SCRIPT}>"
+      else
+        fatal "User ${DEFAULT_USER} not available, skipping setup"
+      fi
     path: /run/ailab_setup.sh
     permissions: '0755'
     owner: root
     defer: true
 
-
 runcmd:
-  - "id -un 1000 && sudo -i -u '#1000' bash /run/ailab_setup.sh"
+  - [sh, "/run/ailab_setup.sh"]
