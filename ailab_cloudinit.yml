@@ -19,8 +19,12 @@ write_files:
       }
 
       DEFAULT_USER=1000
-      REVISION=main
-      SETUP_SCRIPT="https://github.com/unibz-ailab/ailab/raw/${REVISION}/setup.sh"
+      if [ -z "$1" ]; then
+        REVISION=main
+        SETUP_SCRIPT="https://github.com/unibz-ailab/ailab/raw/${REVISION}/setup.sh"
+      else
+        SETUP_SCRIPT="$1"
+      fi
 
       if id -un "${DEFAULT_USER}"; then
         ( { curl -sSLf "${SETUP_SCRIPT}" || echo "exit 1"; } | sudo -i -u "#${DEFAULT_USER}" sh -s ) || fatal "Failed to run setup script <${SETUP_SCRIPT}>"
