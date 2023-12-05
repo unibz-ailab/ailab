@@ -26,6 +26,9 @@
         devShells.default = pkgs.mkShell {
           nativeBuildInputs = with pkgs; [ defEnv ];
         };
+        devShells.${defEnvName} = pkgs.mkShell {
+          nativeBuildInputs = with pkgs; [ defEnv ];
+        };
       };
     };
 
