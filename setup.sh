@@ -7,7 +7,17 @@ setup_nix() {
     #
     NIX_INST_VERSION="v0.15.1"
     curl --proto '=https' --tlsv1.2 -sSf -L "https://install.determinate.systems/nix/tag/${NIX_INST_VERSION}" | sh -s -- install --no-confirm
+
+    # add an extra cache
+    printf "\nextra-substituters = https://nix-community.cachix.org\nextra-trusted-public-keys = nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=\n" \
+        | sudo tee -a /etc/nix/nix.conf
+
     . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+
+    # install https://direnv.net/ and hook it into bash/zsh
+    nix profile install nixpkgs#direnv
+    [ -f "${HOME}/.bashrc" ] && echo 'eval "$(direnv hook bash)"' >> "${HOME}/.bashrc"
+    [ -f "${HOME}/.zshrc" ] && echo 'eval "$(direnv hook zsh)"' >> "${HOME}/.zshrc"
 }
 
 setup_miniforge() {
@@ -39,7 +49,7 @@ main() {
 
     ## Configure default Nix profile
     AILAB_FLAKE="github:unibz-ailab/ailab#ailab"
-    nix profile install "${AILAB_FLAKE}"
+    nix profile install --accept-flake-config "${AILAB_FLAKE}"
 }
 
 main
