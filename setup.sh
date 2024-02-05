@@ -21,7 +21,7 @@ setup_miniforge() {
     ### Install Miniforge
     ###   see <https://github.com/conda-forge/miniforge#downloading-the-installer-as-part-of-a-ci-pipeline>
     #
-    MINIFORGE_VERSION=23.3.1-1
+    MINIFORGE_VERSION=23.11.0-0
     MINIFORGE_PATH="${HOME}/conda"
 
     temp_dir="$(mktemp -d)" || return 1
@@ -34,7 +34,6 @@ setup_miniforge() {
 
     "${MINIFORGE_PATH}/bin/mamba" init "$(basename "${SHELL:-bash}")"
     "${MINIFORGE_PATH}/bin/conda" config --set auto_activate_base false
-    "${MINIFORGE_PATH}/bin/conda" config --set solver libmamba
 
     . "${MINIFORGE_PATH}/etc/profile.d/conda.sh"
     . "${MINIFORGE_PATH}/etc/profile.d/mamba.sh"
