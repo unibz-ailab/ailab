@@ -1,39 +1,66 @@
 # use with https://github.com/casey/just
 #
 
-_default:
-    @just --list
+repo := "https://github.com/unibz-ailab/ailab"
+repo_tag := "main"
+_repo_raw_url := repo / "raw" / repo_tag
 
-tmpdir  := `mktemp -d`
+ssh_key := `ssh-agent sh -c 'ssh-add -q; ssh-add -L'`
 
-_cleanup:
-    [ -d "{{tmpdir}}"] && rm -rf "{{tmpdir}}" || true
+_local_cloud_init := justfile_directory() / "cloudinit.yml"
+remote_clud_init := _repo_raw_url / file_name(_local_cloud_init)
+_setup_script := justfile_directory() / "setup.sh"
 
-_create_cloudinit cloudinit_yml:
-    tar -cvzf - {{ if os() == "macos" { "-s" } else { "--transform" } }} '|^|ailab/|' flake.* nix| base64 > "{{tmpdir}}/flake.tar.gz.base64"
-    sed 's|github:unibz-ailab/ailab|file:///run/flake.tar.gz|g' <"{{justfile_directory()}}/setup.sh" > "{{tmpdir}}/setup.sh"
-    gojq --yaml-input --yaml-output --rawfile setup_script "{{tmpdir}}/setup.sh" --rawfile flake_tar "{{tmpdir}}/flake.tar.gz.base64" '.runcmd[0] |= ["sh", "--", "/run/ailab_setup.sh", "file:///run/setup.sh"] | .write_files += [{content: $setup_script, path: "/run/setup.sh", permissions: "0755", owner: "root", defer: true}, {content: ("!!binary|" + $flake_tar), path: "/run/flake.tar.gz", permissions: "0644", owner: "root", defer: true}]' ailab_cloudinit.yml \
-    | perl -0777 -pe 's/(\|\n\s+?)!!binary\|/!!binary $1/g'> "{{cloudinit_yml}}"
+_remote_tmpdir := "/run/vm_setup"
 
-mpass_vm_image := '22.04'
-mpass_vm_params := '--memory 4G --disk 10G --cpus 2'
+testing := env("USE_WORKDIR", "false")
+
+vm_name := "ailab" + if testing == "true" { "test" } else { "" }
+
+@_default:
+    just --list
+    echo "Variables:"
+    just --evaluate | sed '/^_/d;s/^/    /'
+
+_create_cloudinit tmpdir:
+    mkdir -p "{{tmpdir}}"
+    tar -cvzf - --no-xattrs {{ if os() == "macos" { "--no-mac-metadata -s" } else { "--transform" } }} '|^|lab/|' flake.* nix| base64 > "{{tmpdir}}/flake.tar.gz.base64"
+    sed 's|\(FLAKE_URL="\)[^#]*\(.*"\)|\1file://{{_remote_tmpdir}}/flake.tar.gz\2|' <"{{_setup_script}}" > "{{tmpdir}}/setup.sh"
+    gojq --yaml-input --yaml-output --rawfile setup_script "{{tmpdir}}/setup.sh" --rawfile flake_tar "{{tmpdir}}/flake.tar.gz.base64" '.runcmd[0] += ["file://{{_remote_tmpdir}}/setup.sh"] | .write_files += [{content: $setup_script, path: "{{_remote_tmpdir}}/setup.sh", permissions: "0755", owner: "root", defer: true}, {content: $flake_tar, encoding: "b64", path: "{{_remote_tmpdir}}/flake.tar.gz", permissions: "0644", owner: "root", defer: true}]' "{{_local_cloud_init}}"> "{{tmpdir}}/cloudinit.yml"
+
+mpass_vm_image := '20.04'
+mpass_vm_params := '--memory 4G --disk 20G --cpus 2'
 
 # Creates a new test VM, delete existing one with the same name
-_create_vm vm_name cloud_init: (_delete_vm vm_name)
-    multipass launch {{mpass_vm_image}} {{mpass_vm_params}} --name {{vm_name}} --cloud-init "{{cloud_init}}"
+_create_vm name cloud_init: (_delete_vm name) && (_add_ssh_key name)
+    multipass launch {{mpass_vm_image}} {{mpass_vm_params}} --name {{name}} --cloud-init "{{cloud_init}}"
 
-_delete_vm vm_name:
-    multipass info {{vm_name}} >/dev/null 2>&1 &&  multipass delete --purge {{vm_name}} || true
+_add_ssh_key name:
+    multipass exec -d '.ssh' {{name}} -- sh -c 'grep -qxF "{{ssh_key}}" authorized_keys || echo "{{ssh_key}}" >> authorized_keys'
 
-_shell_vm vm_name:
-    multipass info {{vm_name}} >/dev/null 2>&1 && multipass shell {{vm_name}}
+_delete_vm name:
+    multipass info {{name}} >/dev/null 2>&1 &&  multipass delete --purge {{name}} || true
 
-vm_name := "ailab"
-vm_name_test := vm_name + "test"
-cloudinit_test := tmpdir + "/cloudinit.yml"
+_shell_vm name:
+    multipass info {{name}} >/dev/null 2>&1 && multipass shell {{name}}
 
-# Create and log into a multipass VM using the local configuration
-test_vm: (_create_cloudinit cloudinit_test) (_create_vm vm_name_test cloudinit_test) (_shell_vm vm_name_test)
+_stop_vm name:
+    multipass stop {{name}}
 
-# Create and log into a multipass VM using the repo configuration
-vm: (_create_vm vm_name "https://github.com/unibz-ailab/ailab/raw/main/ailab_cloudinit.yml") (_shell_vm vm_name)
+# Create a multipass VM using the local configuration
+vm_test name=vm_name tmpdir=`mktemp -d`: \
+        (_create_cloudinit tmpdir) \
+        (_create_vm name tmpdir / "cloudinit.yml")
+    [ -z ${KEEPTEMP+x} ] && rm -rf "{{tmpdir}}"
+
+# Create a multipass VM using the repo configuration
+vm name=vm_name: (_create_vm name remote_clud_init)
+
+# Login into a multipass VM
+shell name=vm_name: (_shell_vm name)
+
+# Stop the multipass VM
+stop name=vm_name: (_stop_vm name)
+
+# Delete the multipass VM
+rm name=vm_name: (_delete_vm name)

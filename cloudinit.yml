@@ -27,14 +27,14 @@ write_files:
       fi
 
       if id -un "${DEFAULT_USER}"; then
-        ( { curl -sSLf "${SETUP_SCRIPT}" || echo "exit 1"; } | sudo -i -u "#${DEFAULT_USER}" sh -s ) || fatal "Failed to run setup script <${SETUP_SCRIPT}>"
+        { [ -r "${SETUP_SCRIPT}" ] && cat "" "${SETUP_SCRIPT}" || curl -sSLf "${SETUP_SCRIPT}" || echo "exit 1"; } | sudo -i -u "#${DEFAULT_USER}" sh -s || fatal "Failed to run setup script <${SETUP_SCRIPT}>"
       else
         fatal "User ${DEFAULT_USER} not available, skipping setup"
       fi
-    path: /run/ailab_setup.sh
+    path: /run/run_setup_script.sh
     permissions: '0755'
     owner: root
     defer: true
 
 runcmd:
-  - [sh, "/run/ailab_setup.sh"]
+  - [sh, "/run/run_setup_script.sh"]

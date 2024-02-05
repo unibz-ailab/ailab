@@ -13,7 +13,7 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
       perSystem = { config, self', inputs', pkgs, system, ... }: let
-        defEnv = pkgs.callPackage ./nix/ailab.nix { };
+        defEnv = pkgs.callPackage ./nix/lab.nix { };
         defEnvName = defEnv.name;
       in {
         # Per-system attributes can be defined here. The self' and inputs'
