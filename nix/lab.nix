@@ -5,11 +5,17 @@
 pkgs.buildEnv {
   name = "ailab";
   paths = with pkgs; [
-    devbox
+    # AI tools
     fast-downward
+    minizinc
+
+    # Other tools
     gojq
+    go-task
     just
     mani
     micromamba
+    pixi
+    rsync
   ];
 }
