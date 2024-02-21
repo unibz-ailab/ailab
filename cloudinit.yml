@@ -20,7 +20,7 @@ write_files:
 
       DEFAULT_USER=1000
       if [ -z "$1" ]; then
-        REVISION=main
+        REVISION=ay2023
         SETUP_SCRIPT="https://github.com/unibz-ailab/ailab/raw/${REVISION}/setup.sh"
       else
         SETUP_SCRIPT="$1"
