@@ -15,6 +15,7 @@ pkgs.buildEnv {
     just
     mani
     micromamba
+    pipx
     pixi
     rsync
   ];
