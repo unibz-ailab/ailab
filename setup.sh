@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -ex
 
-FLAKE_URL="github:unibz-ailab/ailab?ref=main#ailab"
+: "${FLAKE_URL=github:unibz-ailab/ailab?ref=main#ailab}"
 
 setup_nix() {
     ### Install nix and required packages
