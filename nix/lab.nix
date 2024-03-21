@@ -7,9 +7,9 @@ pkgs.buildEnv {
   paths = with pkgs; [
     # AI tools
     fast-downward
-    minizinc
 
     # Other tools
+    jq
     gojq
     go-task
     just
