@@ -2,7 +2,7 @@
 #
 
 repo := "https://github.com/unibz-ailab/ailab"
-repo_tag := "ay2023"
+repo_tag := "ay2024"
 _repo_raw_url := repo / "raw" / repo_tag
 
 ssh_key := `ssh-agent sh -c 'ssh-add -q; ssh-add -L'`
