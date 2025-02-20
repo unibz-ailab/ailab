@@ -7,6 +7,7 @@ pkgs.buildEnv {
   paths = with pkgs; [
     # AI tools
     fast-downward
+    minizinc
 
     # Other tools
     jq
@@ -15,8 +16,9 @@ pkgs.buildEnv {
     just
     mani
     micromamba
-    pipx
     pixi
+    rclone
     rsync
+    uv
   ];
 }
