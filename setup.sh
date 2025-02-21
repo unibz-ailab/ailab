@@ -24,7 +24,7 @@ setup_minizinc () {
         echo "command \"minizinc\" already on system" >&2
     else
         if [ "$(command -v snap)" ]; then
-            snap install minizinc --classic
+            sudo snap install minizinc --classic
         else
             echo "snap not available, minizinc should be installed manually" >&2
         fi
