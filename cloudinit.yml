@@ -9,6 +9,10 @@ packages:
   - curl
   - git
 
+snap:
+  commands:
+    0: [snap, install, minizinc, --classic]
+
 write_files:
   - content: |
       #!/usr/bin/env sh

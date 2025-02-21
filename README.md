@@ -2,7 +2,6 @@
 
 This document describes the setup of Linux virtual machines for the AI course. The recommended way of running the experiments for the assignments is by means of Azure Labs, but if you prefer to run (also) on your computer we suggest to use [Multipass](https://multipass.run/) virtualisation software.
 
-
 ## Software on your Computer
 
 Accessing the virtual machine for the lab requires the use of `ssh` and the setup of a key (a SSH key is also recommended to use the [GitLab server](https://gitlab.inf.unibz.it/)). To check whether you already have a key, and to create a new one if needed, you can refer to the [GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent) or [GitLab](https://gitlab.inf.unibz.it/help/user/ssh.md) documentation.
@@ -13,8 +12,10 @@ Several development IDEs support remote development via `ssh`; e.g., [Visual Stu
 
 The setup is based on a Linux machine configured with the following package managers:
 
-- [Miniforge](https://github.com/conda-forge/miniforge), an alternative to [Miniconda](https://docs.conda.io/en/latest/miniconda.html), including the more efficient [Mamba](https://mamba.readthedocs.io/en/latest/) engine.
+- [Pixi](https://prefix.dev/) a fast software package manager built on top of the existing [conda ecosystem](https://prefix.dev/blog/pixi_a_fast_conda_alternative).
 - [Nix package manager](https://zero-to-nix.com/).
+
+In addition, some of the labs require a working installation of [MiniZinc](https://www.minizinc.org/downloads/).
 
 The script [setup.sh](setup.sh) installs the above software within a Linux distribution (the only dependency is `curl`). It *must* be run as a regular user (not root) with `sudo` access for privileged operations (to verify whether the unprivileged user you're using can use `sudo` you can use the command `sudo ls /`). The script can be used to setup a Linux system of your choice (virtualised or not), e.g. with [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/about), [Apptainer](https://apptainer.org/), or Docker/Podman. Even if you're using a Linux machine as your main computer, it's better to isolate the setup for the lab using virtualisation with Multipass, Apptainer or Podman.
 

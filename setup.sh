@@ -17,8 +17,23 @@ setup_nix() {
     . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 }
 
+setup_minizinc () {
+    ### Install Minizinc from snap catalog
+    #
+    if [ "$(command -v minizinc)" ]; then
+        echo "command \"minizinc\" already on system" >&2
+    else
+        if [ "$(command -v snap)" ]; then
+            snap install minizinc --classic
+        else
+            echo "snap not available, minizinc should be installed manually" >&2
+        fi
+    fi
+}
+
 main() {
     setup_nix
+    setup_minizinc
 
     nix profile install --accept-flake-config "${FLAKE_URL}"
 }
