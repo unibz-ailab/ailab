@@ -126,7 +126,7 @@ You can also run [Jupyter](https://jupyter.org/) Lab or Notebook interface on th
 Once the code is on the remote machine and the conda environment `ailab` has been created you can use the following command to start Jupyter on the remote server `<USER@HOST>` on port number `<PORT>` (Jupyter default is 8888):
 
 ```bash
-ssh -tA -L <PORT>:localhost:<PORT> <USER@HOST> "bash -lic 'mamba run -n ailab --live-stream jupyter lab --no-browser --port=<PORT>'"
+ssh -tA -L <PORT>:localhost:<PORT> <USER@HOST> "bash -lic '<CMD TO START JupyterLab> --no-browser --port=<PORT>'"
 ```
 
 The command uses `ssh` to connect to the remote host and forward the local machine port to the remote machine, then it runs the command included in double quotes. For more details you can look at [explainshell.com: ssh -tA -L](https://explainshell.com/explain?cmd=ssh+-tA+-L+8888%3Alocalhost%3A8888+ubuntu%40192.168.64.10+cmd) and [explainshell.com: bash -lic](https://explainshell.com/explain?cmd=bash+-lic+%27mamba+run+-n+ailab+--live-stream+jupyter+lab+--no-browser+--port%3D8888%27).
@@ -137,7 +137,7 @@ The above command should work on Linux, OSX, and Windows (with PowerShell).
 For example, to run JupyterLab on a Multipass VM and connect to it you should run (the IP address `192.168.64.10` might be different):
 
 ```bash
-ssh -tA -L 8888:localhost:8888 ubuntu@192.168.64.10 "bash -lic 'mamba run -n ailab --live-stream jupyter lab --no-browser --port=8888'"
+ssh -tA -L 8888:localhost:8888 ubuntu@192.168.64.10 "bash -lic '<CMD TO START JupyterLab> --no-browser --port=8888'"
 ```
 
 If the command succeeds you'll see several messages on the console ending with something like (the `token` value should be different):
